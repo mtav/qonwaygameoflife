@@ -1,7 +1,8 @@
 import numpy as np
 from qiskit import QuantumCircuit, ClassicalRegister, QuantumRegister
 from qiskit import Aer, execute
-from qiskit.tools.qi.qi import partial_trace
+#from qiskit.tools.qi.qi import partial_trace
+from qiskit.quantum_info import partial_trace
 
 def liveliness(nhood):
     v=nhood
@@ -33,7 +34,7 @@ def SQGOL(nhood):
     return value
 
 def init_quantum(nhood):
-    v=nhood
+    v = nhood
     a = (v[0][0]+v[0][1]+v[0][2]+v[1][0]+v[1][2]+v[2][0]+v[2][1]+v[2][2])/8
     a = a/np.linalg.norm(a)
     qr = QuantumRegister(3,'qr')
@@ -53,6 +54,8 @@ def init_quantum(nhood):
     del qr
     del qc
     del job
+    tmp = partial_trace(results, [1, 2])
+    print(tmp)
     value = partial_trace(results,[1,2])[0]
     value = np.real(value)
     return value

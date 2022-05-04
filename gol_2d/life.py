@@ -286,7 +286,7 @@ def main(sp_up_limit, sp_down_limit, file_path):
                             drawSquareClassic(background_classical, x, y)
 
                     subgrid_fully_quantum = grid_fully_quantum.getNeighboursAround(x, y)
-                    newgrid_fully_quantum.setCell(x, y, DSQGOL(subgrid_fully_quantum))
+                    # newgrid_fully_quantum.setCell(x, y, DSQGOL(subgrid_fully_quantum)) # disabled, as it causes crashes with qiskit 0.36.1
                     drawSquare(background_fully_quantum, x, y, newgrid_fully_quantum.getCell(x,y))
 
             final = pygame.time.get_ticks()
@@ -309,13 +309,15 @@ def main(sp_up_limit, sp_down_limit, file_path):
                 while actionDown:
                     x = pygame.mouse.get_pos()[0] // PIXEL_SIZE
                     y = pygame.mouse.get_pos()[1] // PIXEL_SIZE
-                    newgrid_classical.setCell(x, y, ALIVE)
-                    newgrid_quantum.setCell(x,y,random_cell(sp_up_limit, sp_down_limit))
-                    newgrid_fully_quantum.setCell(x,y,random_cell(sp_up_limit, sp_down_limit))
 
-                    drawSquareClassic(background_classical, x, y)
-                    drawSquare(background_quantum, x, y, newgrid_quantum.getCell(x,y))
-                    # drawSquare for fully quantum version left
+                    if 0 <= x < X_LIMIT and 0 <= y < Y_LIMIT:
+                        newgrid_classical.setCell(x, y, ALIVE)
+                        newgrid_quantum.setCell(x,y,random_cell(sp_up_limit, sp_down_limit))
+                        newgrid_fully_quantum.setCell(x,y,random_cell(sp_up_limit, sp_down_limit))
+
+                        drawSquareClassic(background_classical, x, y)
+                        drawSquare(background_quantum, x, y, newgrid_quantum.getCell(x,y))
+                        # drawSquare for fully quantum version left
 
                     for event in pygame.event.get():
                         if event.type == pygame.MOUSEBUTTONUP:

@@ -108,3 +108,8 @@ QiskitEnv/
 .vscode/
 qiskit-vscode-log.out
 
+# PyCharm
+.idea
+
+# temporary files
+*~

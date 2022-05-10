@@ -1,4 +1,5 @@
-import pygame, copy, math, random
+import pygame
+import copy, math, random
 import numpy as np
 import argparse
 import json
@@ -7,6 +8,7 @@ from qrules import DSQGOL, SQGOL, liveliness
 
 pygame.init()
 
+# Interface Constants
 PIXEL_SIZE = 10
 LINE_WIDTH = 4
 WIN_WIDTH = 600
@@ -14,12 +16,15 @@ WIN_HEIGHT = 400
 WIN_INTERSPACE = 50
 Y_LIMIT = WIN_HEIGHT // PIXEL_SIZE
 X_LIMIT = WIN_WIDTH // PIXEL_SIZE
+
+# Quantum Constants
 ALIVE = np.array([1,0])
 DEAD = np.array([0,1])
 SUPERPOSITION_UP_LIMIT_ARG = 'sp_up'
 SUPERPOSITION_UP_LIMIT_VAL = 0.51
 SUPERPOSITION_DOWN_LIMIT_ARG = 'sp_down'
 SUPERPOSITION_DOWN_LIMIT_VAL = 0.48
+
 FILE_ARG = 'json'
 
 #Update every 2ms
@@ -90,6 +95,8 @@ class debugText():
         self.screen = kwargs.get("screen",self.screen)
         self.clock = kwargs.get("clock",self.clock)
 
+
+# Initialize the grids randomly
 def init_grid_random(sp_up_limit,
                      sp_down_limit,
                      grid,
@@ -114,6 +121,8 @@ def init_grid_random(sp_up_limit,
                 grid2.setCell(x, y, ALIVE)
                 drawSquareClassic(background2, x, y)
 
+
+# Initialize the grids from a json prespecification
 def init_grid_file(file_path,
                    grid,
                    background,
@@ -177,12 +186,18 @@ def drawSquareClassic(background, x, y):
     colour = 255, 255, 255
     pygame.draw.rect(background, colour, (x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE), LINE_WIDTH)
 
+    
+# Inputs: Superposition limits and optional file to load from
 def main(sp_up_limit, sp_down_limit, file_path):
+    
     print(file_path)
+
+    ##### SETTING UP THE BACKGROUNDS
     screen = pygame.display.set_mode((2*WIN_WIDTH+WIN_INTERSPACE, 2*WIN_HEIGHT+WIN_INTERSPACE))
 
     background_Final = pygame.Surface(screen.get_size())
 
+    # Classical GOL Setup
     rect_classical = pygame.Rect(0,0,WIN_WIDTH,WIN_HEIGHT)
     background_classical = background_Final.subsurface(rect_classical)
     background_classical = background_classical.convert()
@@ -192,11 +207,12 @@ def main(sp_up_limit, sp_down_limit, file_path):
     interspace = background_Final.subsurface(rect_interspace)
     interspace = interspace.convert()
     interspace.fill((0, 0, 0))
-
+    
     for x in range(0, WIN_INTERSPACE // PIXEL_SIZE):
         for y in range(Y_LIMIT):
             drawBlankSpace(interspace, x, y)
-
+            
+    # Quantum GOL Setup
     rect_quantum = pygame.Rect(WIN_WIDTH+WIN_INTERSPACE,0,WIN_WIDTH,WIN_HEIGHT)
     background_quantum = background_Final.subsurface(rect_quantum)
     background_quantum = background_quantum.convert()
@@ -210,12 +226,14 @@ def main(sp_up_limit, sp_down_limit, file_path):
     for x in range(0, (2*WIN_WIDTH+WIN_INTERSPACE) // PIXEL_SIZE):
         for y in range(0, WIN_INTERSPACE // PIXEL_SIZE):
             drawBlankSpace(interspace_horizontal, x, y)
-
+            
+    # Fully Quantum GOL Setup
     rect_fully_quantum = pygame.Rect(0,0,WIN_WIDTH,WIN_HEIGHT)
     background_fully_quantum = background_Final.subsurface(rect_quantum)
     background_fully_quantum = background_fully_quantum.convert()
     background_fully_quantum.fill((0, 0, 0))
 
+    ##### 
     clock = pygame.time.Clock()
 
     isActive = True
@@ -342,6 +360,9 @@ def main(sp_up_limit, sp_down_limit, file_path):
         debug.printText()
         pygame.display.flip()
 
+        
+# Code starts here. 
+# Takes in optional arguments and calls main()
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Quantum Game of Life')
     parser.add_argument('--{}'.format(SUPERPOSITION_UP_LIMIT_ARG),

@@ -4,73 +4,84 @@ from qiskit import Aer, execute
 #from qiskit.tools.qi.qi import partial_trace
 from qiskit.quantum_info import partial_trace
 
+# Returns how "lively" the cell should be depending
+# on its neighbourhood
 def liveliness(nhood):
-    v=nhood
-    a = v[0][0][0]+v[0][1][0]+v[0][2][0]+v[1][0][0]+v[1][2][0]+v[2][0][0]+v[2][1][0]+v[2][2][0]
-
+    v = nhood
+    a = v[0][0][0] + v[0][1][0] + v[0][2][0] + v[1][0][0] + v[1][2][0] +             v[2][0][0] + v[2][1][0] + v[2][2][0]
     return a
 
-
-
+# Semi-quantum Game of Life
 def SQGOL(nhood):
     a = liveliness(nhood)
-    value =  nhood[1][1]
-    alive = np.array([1.0,0.0])
-    dead = np.array([0.0,1.0])
-    B = np.array([[0,0],[1,1]])
-    D = np.array([[1,1],[0,0]])
-    S = np.array([[1,0],[0,1]])
-    if a <= 1:
-        value =  dead
-    elif (a > 1 and a <= 2):
-        value = ((np.sqrt(2)+1)*2-(np.sqrt(2)+1)*a)*dead+(a-1)*value#(((np.sqrt(2)+1)*(2-a))**2+(a-1)**2)
-    elif (a > 2 and a <= 3):
-        value = (((np.sqrt(2)+1)*3)-(np.sqrt(2)+1)*a)*value+(a-2)*alive#(((np.sqrt(2)+1)*(3-a))**2+(a-2)**2)
-    elif (a > 3 and a < 4):
-        value = ((np.sqrt(2)+1)*4-(np.sqrt(2)+1)*a)*alive+(a-3)*dead#(((np.sqrt(2)+1)*(4-a))**2+(a-3)**2)
-    elif a >= 4:
+    value = nhood[1][1]
+    alive = np.array([1.0, 0.0])
+    dead = np.array([0.0, 1.0])
+    B = np.array([[0, 0], [1, 1]])
+    D = np.array([[1, 1], [0, 0]])
+    S = np.array([[1, 0], [0, 1]])
+    if a <= 1 or a >= 4:
         value = dead
-    value = value/np.linalg.norm(value)
+
+    elif (a > 1 and a <= 2):
+        value = ((np.sqrt(2) + 1) * 2 - (np.sqrt(2) + 1) * a) * dead + (
+            a - 1) * value  #(((np.sqrt(2)+1)*(2-a))**2+(a-1)**2)
+
+    elif (a > 2 and a <= 3):
+        value = (((np.sqrt(2) + 1) * 3) - (np.sqrt(2) + 1) * a) * value + (
+            a - 2) * alive  #(((np.sqrt(2)+1)*(3-a))**2+(a-2)**2)
+
+    elif (a > 3 and a < 4):
+        value = ((np.sqrt(2) + 1) * 4 - (np.sqrt(2) + 1) * a) * alive + (
+            a - 3) * dead  #(((np.sqrt(2)+1)*(4-a))**2+(a-3)**2)
+
+    # Normalize
+    value = value / np.linalg.norm(value)
     return value
+
 
 def init_quantum(nhood):
     v = nhood
-    a = (v[0][0]+v[0][1]+v[0][2]+v[1][0]+v[1][2]+v[2][0]+v[2][1]+v[2][2])/8
-    a = a/np.linalg.norm(a)
-    qr = QuantumRegister(3,'qr')
-    qc = QuantumCircuit(qr,name='conway')
-    counter  = 0
-    initial_state = (1/np.sqrt(6))*np.array([2,1,0,1])
-    qc.initialize(initial_state,[qr[1],qr[2]])
-    qc.initialize(a,[qr[0]])
-    qc.cx(qr[0],qr[1])
-    qc.initialize(a,[qr[0]])
-    qc.cx(qr[0],qr[1])
-    qc.cx(qr[0],qr[2])
-    qc.cx(qr[1],qr[0])
-    qc.cx(qr[2],qr[0])
-    job = execute(qc,Aer.get_backend('statevector_simulator'))
+    a = (v[0][0] + v[0][1] + v[0][2] + v[1][0] + v[1][2] + v[2][0] + v[2][1] +
+         v[2][2]) / 8
+    a = a / np.linalg.norm(a)
+    qr = QuantumRegister(3, 'qr')
+    qc = QuantumCircuit(qr, name='conway')
+    counter = 0
+    initial_state = (1 / np.sqrt(6)) * np.array([2, 1, 0, 1])
+    qc.initialize(initial_state, [qr[1], qr[2]])
+    qc.initialize(a, [qr[0]])
+    qc.cx(qr[0], qr[1])
+    qc.initialize(a, [qr[0]])
+    qc.cx(qr[0], qr[1])
+    qc.cx(qr[0], qr[2])
+    qc.cx(qr[1], qr[0])
+    qc.cx(qr[2], qr[0])
+    job = execute(qc, Aer.get_backend('statevector_simulator'))
     results = job.result().get_statevector()
     del qr
     del qc
     del job
     tmp = partial_trace(results, [1, 2])
     print(tmp)
-    value = partial_trace(results,[1,2])[0]
+    value = partial_trace(results, [1, 2])[0]
     value = np.real(value)
     return value
+
+
+
 
 def DSQGOL(nhood):
 
     a = liveliness(nhood)
 
-    value =  nhood[1][1][0]
-    value =  nhood[1][1]
-    alive = [1,0]
-    dead = [0,1]
+    value = nhood[1][1][0]
+    value = nhood[1][1]
+    alive = [1, 0]
+    dead = [0, 1]
 
     if value[0] > 0.98:
-        if (a <= 1.5 ):
+        if (a <= 1.5):
             value = dead
         elif (a > 1.5 and a <= 2.5):
             value = init_quantum(nhood)
@@ -86,7 +97,7 @@ def DSQGOL(nhood):
         elif (a > 3.5):
             value = dead
     elif a < 0.02:
-        if (a < 1 ):
+        if (a < 1):
             value = dead
         elif (a > 1 and a <= 1.5):
             value = dead
@@ -104,7 +115,7 @@ def DSQGOL(nhood):
         elif (a > 3.5):
             value = dead
     else:
-        if (a < 1 ):
+        if (a < 1):
             value = dead
         elif (a > 1 and a <= 1.5):
             value = dead
@@ -126,5 +137,5 @@ def DSQGOL(nhood):
             # job = execute(qci,Aer.get_backend('statevector_simulator'))
             # value = job.result().get_statevector()
         elif (a > 3.5):
-            value=dead
+            value = dead
     return value

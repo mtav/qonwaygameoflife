@@ -1,2 +1,9 @@
 language = "python3"
-run = "source QiskitEnv/bin/activate ;  python gol_2d/life.py"
+# run = "source QiskitEnv/bin/activate ;  python gol_2d/life.py"
+
+# run game:
+run = "python gol_2d/life.py"
+
+# test imports
+# python packages are configured in pyproject.toml
+# run = "python test_imports.py"

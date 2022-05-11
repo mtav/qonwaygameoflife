@@ -18,8 +18,8 @@ Y_LIMIT = WIN_HEIGHT // PIXEL_SIZE
 X_LIMIT = WIN_WIDTH // PIXEL_SIZE
 
 # Quantum Constants
-ALIVE = np.array([1,0])
-DEAD = np.array([0,1])
+ALIVE = np.array([1, 0])
+DEAD = np.array([0, 1])
 SUPERPOSITION_UP_LIMIT_ARG = 'sp_up'
 SUPERPOSITION_UP_LIMIT_VAL = 0.51
 SUPERPOSITION_DOWN_LIMIT_ARG = 'sp_down'
@@ -30,6 +30,7 @@ FILE_ARG = 'json'
 #Update every 2ms
 REFRESH = 2
 TARGET_FPS = 60
+
 
 class Grid():
     def __init__(self, *args, **kwargs):
@@ -69,7 +70,7 @@ class Grid():
         return neighbors
 
     def countNeighbours(self, x, y):
-        neighbours = self.getNeighboursAround(x,y)
+        neighbours = self.getNeighboursAround(x, y)
         return liveliness(neighbours)
 
         count = 0
@@ -77,9 +78,11 @@ class Grid():
             for y in range(3):
                 if x == 1 and y == 1:
                     continue
-                count += 1 if (neighbours[x][y] == np.array([0.,1.])).all() else 0
+                count += 1 if (neighbours[x][y] == np.array([0., 1.
+                                                             ])).all() else 0
 
         return count
+
 
 class debugText():
     def __init__(self, screen, clock, *args, **kwargs):
@@ -88,22 +91,18 @@ class debugText():
         self.font = pygame.font.SysFont("Monospaced", 20)
 
     def printText(self):
-        label_frameRate = self.font.render("FPS: " + str(self.clock.get_fps()), 1, (255,255,255))
+        label_frameRate = self.font.render("FPS: " + str(self.clock.get_fps()),
+                                           1, (255, 255, 255))
         self.screen.blit(label_frameRate, (8, 22))
 
     def update(self, *args, **kwargs):
-        self.screen = kwargs.get("screen",self.screen)
-        self.clock = kwargs.get("clock",self.clock)
+        self.screen = kwargs.get("screen", self.screen)
+        self.clock = kwargs.get("clock", self.clock)
 
 
 # Initialize the grids randomly
-def init_grid_random(sp_up_limit,
-                     sp_down_limit,
-                     grid,
-                     background,
-                     grid2,
-                     background2,
-                     grid_fully_quantum,
+def init_grid_random(sp_up_limit, sp_down_limit, grid, background, grid2,
+                     background2, grid_fully_quantum,
                      background_fully_quantum):
     for x in range(X_LIMIT):
         for y in range(Y_LIMIT):
@@ -123,13 +122,8 @@ def init_grid_random(sp_up_limit,
 
 
 # Initialize the grids from a json prespecification
-def init_grid_file(file_path,
-                   grid,
-                   background,
-                   grid2,
-                   background2,
-                   grid_fully_quantum,
-                   background_fully_quantum):
+def init_grid_file(file_path, grid, background, grid2, background2,
+                   grid_fully_quantum, background_fully_quantum):
     with open(file_path) as json_file:
         data = json.load(json_file)
 
@@ -155,9 +149,11 @@ def init_grid_file(file_path,
                     grid2.setCell(final_x, final_y, ALIVE)
                     drawSquareClassic(background2, final_x, final_y)
 
+
 def json_cell(a):
     b = math.sqrt(1 - a**2)
-    return np.array([a,b])
+    return np.array([a, b])
+
 
 def random_cell(up_limit, down_limit):
     a = random.random()
@@ -169,71 +165,86 @@ def random_cell(up_limit, down_limit):
         b = 0.
         a = 1.
 
-    return np.array([a,b])
+    return np.array([a, b])
+
 
 def drawSquare(background, x, y, array):
     #Cell colour
-    value = 255.0 - np.floor((array[1]**2)*255)
+    value = 255.0 - np.floor((array[1]**2) * 255)
     colour = value, value, value
-    pygame.draw.rect(background, colour, (x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE), LINE_WIDTH)
+    pygame.draw.rect(background, colour,
+                     (x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE),
+                     LINE_WIDTH)
+
 
 def drawBlankSpace(background, x, y):
     #Random cell colour
-    colour = 40,40,40
-    pygame.draw.rect(background, colour, (x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE))
+    colour = 40, 40, 40
+    pygame.draw.rect(background, colour,
+                     (x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE))
+
 
 def drawSquareClassic(background, x, y):
     colour = 255, 255, 255
-    pygame.draw.rect(background, colour, (x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE), LINE_WIDTH)
+    pygame.draw.rect(background, colour,
+                     (x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE),
+                     LINE_WIDTH)
 
-    
+
 # Inputs: Superposition limits and optional file to load from
 def main(sp_up_limit, sp_down_limit, file_path):
-    
+
     print(file_path)
 
     ##### SETTING UP THE BACKGROUNDS
-    screen = pygame.display.set_mode((2*WIN_WIDTH+WIN_INTERSPACE, 2*WIN_HEIGHT+WIN_INTERSPACE))
+    # 2x2 window
+    res = (2 * WIN_WIDTH + WIN_INTERSPACE, 2 * WIN_HEIGHT + WIN_INTERSPACE)
+    screen = pygame.display.set_mode(res)
 
     background_Final = pygame.Surface(screen.get_size())
 
     # Classical GOL Setup
-    rect_classical = pygame.Rect(0,0,WIN_WIDTH,WIN_HEIGHT)
+    rect_classical = pygame.Rect(0, 0, WIN_WIDTH, WIN_HEIGHT)
     background_classical = background_Final.subsurface(rect_classical)
     background_classical = background_classical.convert()
     background_classical.fill((0, 0, 0))
 
-    rect_interspace = pygame.Rect(WIN_WIDTH+WIN_INTERSPACE,0,WIN_INTERSPACE,WIN_HEIGHT)
+    rect_interspace = pygame.Rect(WIN_WIDTH + WIN_INTERSPACE, 0,
+                                  WIN_INTERSPACE, WIN_HEIGHT)
     interspace = background_Final.subsurface(rect_interspace)
     interspace = interspace.convert()
     interspace.fill((0, 0, 0))
-    
+
     for x in range(0, WIN_INTERSPACE // PIXEL_SIZE):
         for y in range(Y_LIMIT):
             drawBlankSpace(interspace, x, y)
-            
+
     # Quantum GOL Setup
-    rect_quantum = pygame.Rect(WIN_WIDTH+WIN_INTERSPACE,0,WIN_WIDTH,WIN_HEIGHT)
+    rect_quantum = pygame.Rect(WIN_WIDTH + WIN_INTERSPACE, 0, WIN_WIDTH,
+                               WIN_HEIGHT)
     background_quantum = background_Final.subsurface(rect_quantum)
     background_quantum = background_quantum.convert()
     background_quantum.fill((0, 0, 0))
 
-    rect_interspace_horizontal = pygame.Rect(0,WIN_HEIGHT,2*WIN_WIDTH+WIN_INTERSPACE,WIN_INTERSPACE)
-    interspace_horizontal = background_Final.subsurface(rect_interspace_horizontal)
+    rect_interspace_horizontal = pygame.Rect(0, WIN_HEIGHT,
+                                             2 * WIN_WIDTH + WIN_INTERSPACE,
+                                             WIN_INTERSPACE)
+    interspace_horizontal = background_Final.subsurface(
+        rect_interspace_horizontal)
     interspace_horizontal = interspace_horizontal.convert()
     interspace_horizontal.fill((0, 0, 0))
 
-    for x in range(0, (2*WIN_WIDTH+WIN_INTERSPACE) // PIXEL_SIZE):
+    for x in range(0, (2 * WIN_WIDTH + WIN_INTERSPACE) // PIXEL_SIZE):
         for y in range(0, WIN_INTERSPACE // PIXEL_SIZE):
             drawBlankSpace(interspace_horizontal, x, y)
-            
+
     # Fully Quantum GOL Setup
-    rect_fully_quantum = pygame.Rect(0,0,WIN_WIDTH,WIN_HEIGHT)
+    rect_fully_quantum = pygame.Rect(0, 0, WIN_WIDTH, WIN_HEIGHT)
     background_fully_quantum = background_Final.subsurface(rect_quantum)
     background_fully_quantum = background_fully_quantum.convert()
     background_fully_quantum.fill((0, 0, 0))
 
-    ##### 
+    #####
     clock = pygame.time.Clock()
 
     isActive = True
@@ -247,28 +258,22 @@ def main(sp_up_limit, sp_down_limit, file_path):
 
     #Create the orginal grid pattern randomly
     if file_path is None:
-        init_grid_random(sp_up_limit,
-                         sp_down_limit,
-                         grid_quantum,
-                         background_quantum,
-                         grid_classical,
-                         background_classical,
-                         grid_fully_quantum,
+        init_grid_random(sp_up_limit, sp_down_limit, grid_quantum,
+                         background_quantum, grid_classical,
+                         background_classical, grid_fully_quantum,
                          background_fully_quantum)
     else:
-        init_grid_file(file_path,
-                       grid_quantum,
-                       background_quantum,
-                       grid_classical,
-                       background_classical,
-                       grid_fully_quantum,
-                       background_fully_quantum)
+        init_grid_file(file_path, grid_quantum, background_quantum,
+                       grid_classical, background_classical,
+                       grid_fully_quantum, background_fully_quantum)
 
     screen.blit(background_classical, (0, 0))
     screen.blit(interspace, (WIN_WIDTH, 0))
-    screen.blit(background_quantum, (WIN_WIDTH+WIN_INTERSPACE, 0))
+    screen.blit(background_quantum, (WIN_WIDTH + WIN_INTERSPACE, 0))
     screen.blit(interspace_horizontal, (0, WIN_HEIGHT))
-    screen.blit(background_quantum, (WIN_WIDTH/2+WIN_INTERSPACE/2, WIN_HEIGHT+WIN_INTERSPACE))
+    screen.blit(
+        background_quantum,
+        (WIN_WIDTH / 2 + WIN_INTERSPACE / 2, WIN_HEIGHT + WIN_INTERSPACE))
     pygame.display.flip()
 
     while isActive:
@@ -285,8 +290,9 @@ def main(sp_up_limit, sp_down_limit, file_path):
                 for y in range(0, Y_LIMIT):
                     subgrid = grid_quantum.getNeighboursAround(x, y)
                     newgrid_quantum.setCell(x, y, SQGOL(subgrid))
-                    drawSquare(background_quantum, x, y, newgrid_quantum.getCell(x,y))
-					#Classic game of life
+                    drawSquare(background_quantum, x, y,
+                               newgrid_quantum.getCell(x, y))
+                    #Classic game of life
                     if (grid_classical.getCell(x, y) == ALIVE).all():
                         count = grid_classical.countNeighbours(x, y)
                         if count < 2:
@@ -303,9 +309,11 @@ def main(sp_up_limit, sp_down_limit, file_path):
                             newgrid_classical.setCell(x, y, ALIVE)
                             drawSquareClassic(background_classical, x, y)
 
-                    subgrid_fully_quantum = grid_fully_quantum.getNeighboursAround(x, y)
+                    subgrid_fully_quantum = grid_fully_quantum.getNeighboursAround(
+                        x, y)
                     # newgrid_fully_quantum.setCell(x, y, DSQGOL(subgrid_fully_quantum)) # disabled, as it causes crashes with qiskit 0.36.1
-                    drawSquare(background_fully_quantum, x, y, newgrid_fully_quantum.getCell(x,y))
+                    drawSquare(background_fully_quantum, x, y,
+                               newgrid_fully_quantum.getCell(x, y))
 
             final = pygame.time.get_ticks()
 
@@ -330,11 +338,14 @@ def main(sp_up_limit, sp_down_limit, file_path):
 
                     if 0 <= x < X_LIMIT and 0 <= y < Y_LIMIT:
                         newgrid_classical.setCell(x, y, ALIVE)
-                        newgrid_quantum.setCell(x,y,random_cell(sp_up_limit, sp_down_limit))
-                        newgrid_fully_quantum.setCell(x,y,random_cell(sp_up_limit, sp_down_limit))
+                        newgrid_quantum.setCell(
+                            x, y, random_cell(sp_up_limit, sp_down_limit))
+                        newgrid_fully_quantum.setCell(
+                            x, y, random_cell(sp_up_limit, sp_down_limit))
 
                         drawSquareClassic(background_classical, x, y)
-                        drawSquare(background_quantum, x, y, newgrid_quantum.getCell(x,y))
+                        drawSquare(background_quantum, x, y,
+                                   newgrid_quantum.getCell(x, y))
                         # drawSquare for fully quantum version left
 
                     for event in pygame.event.get():
@@ -342,7 +353,7 @@ def main(sp_up_limit, sp_down_limit, file_path):
                             actionDown = False
 
                     screen.blit(background_classical, (0, 0))
-                    screen.blit(background_quantum, (WIN_WIDTH+100, 0))
+                    screen.blit(background_quantum, (WIN_WIDTH + 100, 0))
                     pygame.display.flip()
 
         #Draws the new grid
@@ -353,31 +364,141 @@ def main(sp_up_limit, sp_down_limit, file_path):
         #Updates screen
         screen.blit(background_classical, (0, 0))
         screen.blit(interspace, (WIN_WIDTH, 0))
-        screen.blit(background_quantum, (WIN_WIDTH+WIN_INTERSPACE, 0))
+        screen.blit(background_quantum, (WIN_WIDTH + WIN_INTERSPACE, 0))
         screen.blit(interspace_horizontal, (0, WIN_HEIGHT))
-        screen.blit(background_fully_quantum, (WIN_WIDTH/2+WIN_INTERSPACE/2, WIN_HEIGHT+WIN_INTERSPACE))
+        screen.blit(
+            background_fully_quantum,
+            (WIN_WIDTH / 2 + WIN_INTERSPACE / 2, WIN_HEIGHT + WIN_INTERSPACE))
         debug.update()
         debug.printText()
         pygame.display.flip()
 
-        
-# Code starts here. 
+
+# Code starts here.
 # Takes in optional arguments and calls main()
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Quantum Game of Life')
     parser.add_argument('--{}'.format(SUPERPOSITION_UP_LIMIT_ARG),
                         type=float,
                         default=SUPERPOSITION_UP_LIMIT_VAL,
-                        help='Superposition UP limit (default: {})'.format(SUPERPOSITION_UP_LIMIT_VAL))
+                        help='Superposition UP limit (default: {})'.format(
+                            SUPERPOSITION_UP_LIMIT_VAL))
     parser.add_argument('--{}'.format(SUPERPOSITION_DOWN_LIMIT_ARG),
                         type=float,
                         default=SUPERPOSITION_DOWN_LIMIT_VAL,
-                        help='Superposition DOWN limit (default: {})'.format(SUPERPOSITION_DOWN_LIMIT_VAL))
+                        help='Superposition DOWN limit (default: {})'.format(
+                            SUPERPOSITION_DOWN_LIMIT_VAL))
     parser.add_argument('--{}'.format(FILE_ARG),
                         help='Path to JSON file with pre-configured seed',
                         default=None)
     args = vars(parser.parse_args())
 
-    main(args[SUPERPOSITION_UP_LIMIT_ARG],
-         args[SUPERPOSITION_DOWN_LIMIT_ARG],
-         args[FILE_ARG])
+    pygame.init()
+    res = (720, 720)
+    screen = pygame.display.set_mode(res)
+    color = (255, 255, 255)
+    color_light = (170, 170, 170)
+    color_dark = (100, 100, 100)
+    width = screen.get_width()
+    height = screen.get_height()
+    smallfont = pygame.font.SysFont('Corbel', 35)
+
+    button_height = 40
+    button_width = 280
+    gap_height = 10
+
+    quit_text = smallfont.render('Quit', True, color)
+    random_sim_text = smallfont.render('Start random simulation', True, color)
+    empty_sim_text = smallfont.render('Start empty simulation', True, color)
+    json_sim_text = smallfont.render('Load simulation', True, color)
+
+    def on_quit_button(x, y):
+        if width / 2 <= x <= width / 2 + button_width and height / 2 <= y <= height / 2 + button_height:
+            return True
+
+    def on_random_sim_button(x, y):
+        if width / 2 <= x <= width / 2 + button_width and height / 2 + button_height + gap_height <= y <= height / 2 + 2 * button_height + gap_height:
+            return True
+
+    def on_empty_sim_button(x, y):
+        if width / 2 <= x <= width / 2 + button_width and height / 2 + 2 * button_height + 2 * gap_height <= y <= height / 2 + (
+                3 * button_height + 2 * gap_height):
+            return True
+
+    def on_json_sim_button(x, y):
+        if width / 2 <= x <= width / 2 + button_width and height / 2 + 3 * button_height + 3 * gap_height <= y <= height / 2 + 4 * button_height + 3 * gap_height:
+            return True
+
+    game_start = False
+
+    while True:
+
+        mouse = pygame.mouse.get_pos()
+
+        for ev in pygame.event.get():
+
+            if ev.type == pygame.QUIT:
+                pygame.quit()
+
+            if ev.type == pygame.MOUSEBUTTONDOWN:
+                if on_quit_button(mouse[0], mouse[1]):
+                    pygame.quit()
+                elif on_random_sim_button(mouse[0], mouse[1]):
+                    game_start = True
+                elif on_empty_sim_button(mouse[0], mouse[1]):
+                    game_start = False
+                elif on_json_sim_button(mouse[0], mouse[1]):
+                    game_start = False
+
+        screen.fill((60, 25, 60))
+
+        # Change buttons to lighter shade if hovered upon
+        if on_quit_button(mouse[0], mouse[1]):
+            pygame.draw.rect(
+                screen, color_light,
+                (width / 2, height / 2, button_width, button_height))
+        else:
+            pygame.draw.rect(
+                screen, color_dark,
+                (width / 2, height / 2, button_width, button_height))
+
+        if on_random_sim_button(mouse[0], mouse[1]):
+            pygame.draw.rect(screen, color_light,
+                             (width / 2, height / 2 + button_height +
+                              gap_height, button_width, button_height))
+        else:
+            pygame.draw.rect(screen, color_dark,
+                             (width / 2, height / 2 + button_height +
+                              gap_height, button_width, button_height))
+
+        if on_empty_sim_button(mouse[0], mouse[1]):
+            pygame.draw.rect(screen, color_light,
+                             (width / 2, height / 2 + 2 * button_height +
+                              2 * gap_height, button_width, button_height))
+        else:
+            pygame.draw.rect(screen, color_dark,
+                             (width / 2, height / 2 + 2 * button_height +
+                              2 * gap_height, button_width, button_height))
+
+        if on_json_sim_button(mouse[0], mouse[1]):
+            pygame.draw.rect(screen, color_light,
+                             (width / 2, height / 2 + 3 * button_height +
+                              3 * gap_height, button_width, button_height))
+        else:
+            pygame.draw.rect(screen, color_dark,
+                             (width / 2, height / 2 + 3 * button_height +
+                              3 * gap_height, button_width, button_height))
+
+        screen.blit(quit_text, (width / 2, height / 2))
+        screen.blit(random_sim_text,
+                    (width / 2, height / 2 + (button_height + gap_height)))
+        screen.blit(empty_sim_text,
+                    (width / 2, height / 2 + 2 * (button_height + gap_height)))
+        screen.blit(json_sim_text,
+                    (width / 2, height / 2 + 3 * (button_height + gap_height)))
+        pygame.display.flip()
+        pygame.display.update()
+
+    if game_start:
+        main(args[SUPERPOSITION_UP_LIMIT_ARG],
+             args[SUPERPOSITION_DOWN_LIMIT_ARG], args[FILE_ARG])

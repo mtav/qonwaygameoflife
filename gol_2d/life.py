@@ -1,3 +1,5 @@
+import sys
+
 import pygame
 import copy, math, random
 import numpy as np
@@ -28,7 +30,8 @@ SUPERPOSITION_DOWN_LIMIT_VAL = 0.48
 FILE_ARG = 'json'
 
 #Update every 2ms
-REFRESH = 0.1*1000 #2
+REFRESH_DEFAULT = 2
+# REFRESH_DEFAULT = 0.1*1000
 TARGET_FPS = 60
 
 
@@ -193,9 +196,8 @@ def drawSquareClassic(background, x, y):
 
 
 # Inputs: Superposition limits and optional file to load from
-def main(sp_up_limit, sp_down_limit, file_path):
-
-    print(file_path)
+def main(sp_up_limit=SUPERPOSITION_UP_LIMIT_VAL, sp_down_limit=SUPERPOSITION_DOWN_LIMIT_VAL, file_path=None, refresh_rate=REFRESH_DEFAULT):
+    print(f'file_path: {file_path}')
 
     ##### SETTING UP THE BACKGROUNDS
     # 2x2 window
@@ -283,7 +285,7 @@ def main(sp_up_limit, sp_down_limit, file_path):
         newgrid_classical = Grid()
         newgrid_fully_quantum = Grid()
 
-        if pygame.time.get_ticks() - final > REFRESH:
+        if pygame.time.get_ticks() - final > refresh_rate:
             background_quantum.fill((0, 0, 0))
             background_classical.fill((0, 0, 0))
 
@@ -374,26 +376,7 @@ def main(sp_up_limit, sp_down_limit, file_path):
         debug.printText()
         pygame.display.flip()
 
-
-# Code starts here.
-# Takes in optional arguments and calls main()
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Quantum Game of Life')
-    parser.add_argument('--{}'.format(SUPERPOSITION_UP_LIMIT_ARG),
-                        type=float,
-                        default=SUPERPOSITION_UP_LIMIT_VAL,
-                        help='Superposition UP limit (default: {})'.format(
-                            SUPERPOSITION_UP_LIMIT_VAL))
-    parser.add_argument('--{}'.format(SUPERPOSITION_DOWN_LIMIT_ARG),
-                        type=float,
-                        default=SUPERPOSITION_DOWN_LIMIT_VAL,
-                        help='Superposition DOWN limit (default: {})'.format(
-                            SUPERPOSITION_DOWN_LIMIT_VAL))
-    parser.add_argument('--{}'.format(FILE_ARG),
-                        help='Path to JSON file with pre-configured seed',
-                        default=None)
-    args = vars(parser.parse_args())
-
+def startgui():
     pygame.init()
     res = (720, 720)
     screen = pygame.display.set_mode(res)
@@ -502,5 +485,36 @@ if __name__ == "__main__":
         pygame.display.update()
 
         if game_start:
-            main(args[SUPERPOSITION_UP_LIMIT_ARG],
-                 args[SUPERPOSITION_DOWN_LIMIT_ARG], args[FILE_ARG])
+            main()
+
+# Code starts here.
+# Takes in optional arguments and calls main()
+if __name__ == "__main__":
+    if not len(sys.argv) > 1:
+        # start GUI
+        startgui()
+    else:
+        # parse arguments
+        parser = argparse.ArgumentParser(description='Quantum Game of Life')
+        parser.add_argument('--{}'.format(SUPERPOSITION_UP_LIMIT_ARG),
+                            type=float,
+                            default=SUPERPOSITION_UP_LIMIT_VAL,
+                            help='Superposition UP limit (default: {})'.format(
+                                SUPERPOSITION_UP_LIMIT_VAL))
+        parser.add_argument('--{}'.format(SUPERPOSITION_DOWN_LIMIT_ARG),
+                            type=float,
+                            default=SUPERPOSITION_DOWN_LIMIT_VAL,
+                            help='Superposition DOWN limit (default: {})'.format(
+                                SUPERPOSITION_DOWN_LIMIT_VAL))
+        parser.add_argument('--{}'.format(FILE_ARG),
+                            help='Path to JSON file with pre-configured seed',
+                            default=None)
+        parser.add_argument('--refresh-rate',
+                            type=float,
+                            help='Refresh rate in ms (default: {})'.format(REFRESH_DEFAULT),
+                            default=REFRESH_DEFAULT)
+        args = vars(parser.parse_args())
+
+        # start simulation
+        main(args[SUPERPOSITION_UP_LIMIT_ARG],
+             args[SUPERPOSITION_DOWN_LIMIT_ARG], args[FILE_ARG], args['refresh_rate'])

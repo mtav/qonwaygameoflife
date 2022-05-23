@@ -28,7 +28,7 @@ SUPERPOSITION_DOWN_LIMIT_VAL = 0.48
 FILE_ARG = 'json'
 
 #Update every 2ms
-REFRESH = 2
+REFRESH = 0.1*1000 #2
 TARGET_FPS = 60
 
 
@@ -144,11 +144,12 @@ def init_grid_file(file_path, grid, background, grid2, background2,
 
                 if cell[1] >= 0.5:
                     grid2.setCell(final_x, final_y, DEAD)
-                    drawSquareClassic(background2, final_x, final_y)
+                    # drawSquareClassic(background2, final_x, final_y)
+                    print(f'{c}, {r} -> {cell[0]}, {cell[1]} -> {final_x}, {final_y}, DEAD')
                 else:
                     grid2.setCell(final_x, final_y, ALIVE)
                     drawSquareClassic(background2, final_x, final_y)
-
+                    print(f'{c}, {r} -> {cell[0]}, {cell[1]} -> {final_x}, {final_y}, ALIVE')
 
 def json_cell(a):
     b = math.sqrt(1 - a**2)

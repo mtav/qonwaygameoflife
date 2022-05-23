@@ -376,7 +376,7 @@ def main(sp_up_limit=SUPERPOSITION_UP_LIMIT_VAL, sp_down_limit=SUPERPOSITION_DOW
         debug.printText()
         pygame.display.flip()
 
-def startgui():
+def startgui(args):
     pygame.init()
     res = (720, 720)
     screen = pygame.display.set_mode(res)
@@ -485,36 +485,42 @@ def startgui():
         pygame.display.update()
 
         if game_start:
-            main()
+            main(args[SUPERPOSITION_UP_LIMIT_ARG],
+                 args[SUPERPOSITION_DOWN_LIMIT_ARG], args[FILE_ARG], args['refresh_rate'])
 
 # Code starts here.
 # Takes in optional arguments and calls main()
 if __name__ == "__main__":
-    if not len(sys.argv) > 1:
-        # start GUI
-        startgui()
-    else:
-        # parse arguments
-        parser = argparse.ArgumentParser(description='Quantum Game of Life')
-        parser.add_argument('--{}'.format(SUPERPOSITION_UP_LIMIT_ARG),
-                            type=float,
-                            default=SUPERPOSITION_UP_LIMIT_VAL,
-                            help='Superposition UP limit (default: {})'.format(
-                                SUPERPOSITION_UP_LIMIT_VAL))
-        parser.add_argument('--{}'.format(SUPERPOSITION_DOWN_LIMIT_ARG),
-                            type=float,
-                            default=SUPERPOSITION_DOWN_LIMIT_VAL,
-                            help='Superposition DOWN limit (default: {})'.format(
-                                SUPERPOSITION_DOWN_LIMIT_VAL))
-        parser.add_argument('--{}'.format(FILE_ARG),
-                            help='Path to JSON file with pre-configured seed',
-                            default=None)
-        parser.add_argument('--refresh-rate',
-                            type=float,
-                            help='Refresh rate in ms (default: {})'.format(REFRESH_DEFAULT),
-                            default=REFRESH_DEFAULT)
-        args = vars(parser.parse_args())
+    # if not len(sys.argv) > 1:
+    #     # start GUI
+    #     startgui()
+    # else:
+    # parse arguments
+    parser = argparse.ArgumentParser(description='Quantum Game of Life')
+    parser.add_argument('--no-gui', action='store_true', help='Start simulation directly without loading GUI.')
+    parser.add_argument('--{}'.format(SUPERPOSITION_UP_LIMIT_ARG),
+                        type=float,
+                        default=SUPERPOSITION_UP_LIMIT_VAL,
+                        help='Superposition UP limit (default: {})'.format(
+                            SUPERPOSITION_UP_LIMIT_VAL))
+    parser.add_argument('--{}'.format(SUPERPOSITION_DOWN_LIMIT_ARG),
+                        type=float,
+                        default=SUPERPOSITION_DOWN_LIMIT_VAL,
+                        help='Superposition DOWN limit (default: {})'.format(
+                            SUPERPOSITION_DOWN_LIMIT_VAL))
+    parser.add_argument('--{}'.format(FILE_ARG),
+                        help='Path to JSON file with pre-configured seed',
+                        default=None)
+    parser.add_argument('--refresh-rate',
+                        type=float,
+                        help='Refresh rate in ms (default: {})'.format(REFRESH_DEFAULT),
+                        default=REFRESH_DEFAULT)
+    args = vars(parser.parse_args())
 
-        # start simulation
+    if args['no_gui']:
+        # start simulation directly
         main(args[SUPERPOSITION_UP_LIMIT_ARG],
              args[SUPERPOSITION_DOWN_LIMIT_ARG], args[FILE_ARG], args['refresh_rate'])
+    else:
+        # start GUI
+        startgui(args)

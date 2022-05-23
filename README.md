@@ -33,12 +33,13 @@ Continous boundary conditions! And you can draw live cells! (draw on the top lef
 (QiskitEnv) > python gol_2d/life.py -h
 pygame 2.1.2 (SDL 2.0.16, Python 3.9.7)
 Hello from the pygame community. https://www.pygame.org/contribute.html
-usage: life.py [-h] [--sp_up SP_UP] [--sp_down SP_DOWN] [--json JSON] [--refresh-rate REFRESH_RATE]
+usage: life.py [-h] [--no-gui] [--sp_up SP_UP] [--sp_down SP_DOWN] [--json JSON] [--refresh-rate REFRESH_RATE]
 
 Quantum Game of Life
 
 optional arguments:
   -h, --help            show this help message and exit
+  --no-gui              Start simulation directly without loading GUI.
   --sp_up SP_UP         Superposition UP limit (default: 0.51)
   --sp_down SP_DOWN     Superposition DOWN limit (default: 0.48)
   --json JSON           Path to JSON file with pre-configured seed
@@ -53,10 +54,10 @@ Notice that `--sp_up` and `--sp_down` are float values between 0 and 1. Also, th
 We also provide a few JSON seeds you can try in [gol_2d/seeds](gol_2d/seeds):
 
 ```
-(QiskitEnv) > python gol_2d/life.py --json gol_2d/seeds/waitforit.json
-(QiskitEnv) > python ./gol_2d/life.py --json ./gol_2d/seeds/glider.json
-(QiskitEnv) > python ./gol_2d/life.py --sp_down 0.6 --sp_up 0.9 --json ./gol_2d/seeds/glider_quantum_chaos.json --refresh-rate=100
-(QiskitEnv) > python ./gol_2d/life.py --sp_down 0.6 --sp_up 0.9 --json ./gol_2d/seeds/glider_quantum_chaos.json --refresh-rate=1000
+(QiskitEnv) > python gol_2d/life.py --no-gui --json gol_2d/seeds/waitforit.json
+(QiskitEnv) > python ./gol_2d/life.py --no-gui --json ./gol_2d/seeds/glider.json
+(QiskitEnv) > python ./gol_2d/life.py --no-gui --sp_down 0.6 --sp_up 0.9 --json ./gol_2d/seeds/glider_quantum_chaos.json --refresh-rate=100
+(QiskitEnv) > python ./gol_2d/life.py --no-gui --sp_down 0.6 --sp_up 0.9 --json ./gol_2d/seeds/glider_quantum_chaos.json --refresh-rate=1000
 ```
 
 

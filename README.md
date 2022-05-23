@@ -50,7 +50,7 @@ All parameters are optional, if none is informed the entire board is randomly in
 
 Notice that `--sp_up` and `--sp_down` are float values between 0 and 1. Also, they are ignored if `--json` is informed.
 
-We also provide a few JSON seeds you can try in [gol_2d/seeds](https://github.com/qonwaygameoflife/qonwaygameoflife/tree/master/gol_2d/seeds):
+We also provide a few JSON seeds you can try in [gol_2d/seeds](gol_2d/seeds):
 
 ```
 (QiskitEnv) > python gol_2d/life.py --json gol_2d/seeds/waitforit.json

@@ -435,6 +435,7 @@ if __name__ == "__main__":
 
         mouse = pygame.mouse.get_pos()
 
+        # Handle clicks for each button
         for ev in pygame.event.get():
 
             if ev.type == pygame.QUIT:
@@ -499,6 +500,6 @@ if __name__ == "__main__":
         pygame.display.flip()
         pygame.display.update()
 
-    if game_start:
-        main(args[SUPERPOSITION_UP_LIMIT_ARG],
-             args[SUPERPOSITION_DOWN_LIMIT_ARG], args[FILE_ARG])
+        if game_start:
+            main(args[SUPERPOSITION_UP_LIMIT_ARG],
+                 args[SUPERPOSITION_DOWN_LIMIT_ARG], args[FILE_ARG])

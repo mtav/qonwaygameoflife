@@ -1,14 +1,8 @@
-# Qiskit Camp - Hackaton Madrid 2019 - Quantum Game of Life
-
-This repo contains our project: slides & code, for the [Qiskit Hackathon Madrid 2019](https://madrid.qiskit.camp/).
+# Quantum Games 2022 by Aalto University - Quantum Game of Life
 
 ## What did we do?
 
 To apply quantum computing to [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life):
-* First to try to speed up the generation of new cells
-* And then we updated the rules to incorporate quantum physics 
-
-For more details, please have a look to [our presentation](https://raw.githubusercontent.com/qonwaygameoflife/qonwaygameoflife/master/presentation/n_dimensional_quantum_game_of_life.pdf).
 
 ## Show me the code
 
@@ -60,28 +54,13 @@ We also provide a few JSON seeds you can try in [gol_2d/seeds](https://github.co
 (QiskitEnv) > python gol_2d/life.py --json gol_2d/seeds/waitforit.json
 ```
 
-#### Attribution
+
+### Source
+
+Cloned and updated from [Qiskit Hackathon Madrid 2019](https://madrid.qiskit.camp/) - Quantum Game of Life
+
+### Attribution
 
 * Instead of implementing the game from scratch, we re-purposed the code in: https://github.com/adrianchifor/conway-game-of-life.
 * Semi quantum simulation is based on: https://arxiv.org/pdf/1902.07835.pdf. The quantum kernel is original.
 
-### 1D Quantum Game of Life
-
-![1D Quantum Game of Life](https://raw.githubusercontent.com/qonwaygameoflife/qonwaygameoflife/master/images/onedgameoflife.jpeg)
-
-In this case, instead of a 2D board to code the Game of Life, we use a 1D quantum register. By putting the qubits in different states as if they were cells: alive (|1>), dead (|0>) or neither alive nor dead (superposition), the idea was to produce all possible results by sequentially applying the same Truth Table Oracle which coded the dead/alive rules. However:
-* The resulting circuit was (as you can see above) huge
-* The output of an oracle was inputted in the next one but, it is likely, that by doing so we were also propagating an unintended phase change that eventually **corrupted** the results. With 4 or more input qubits, the outputs of the second oracle were no longer valid. 
-
-#### Usage
-
-```
-(QiskitEnv) > python gol_1d/onedgameoflife.py 
-Input:
-☒ ☒ ☒
-Output:
-□ □ □  <1.7677669529663689>
-■ ■ ■  <1.0606601717798212>
-Output:
-□ □ □  <1.0>
-```

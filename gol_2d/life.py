@@ -35,6 +35,8 @@ REFRESH_DEFAULT = 2
 # REFRESH_DEFAULT = 0.1*1000
 TARGET_FPS = 60
 
+class GameState:
+    game_paused = False
 
 class Grid():
     def __init__(self, *args, **kwargs):
@@ -206,9 +208,20 @@ def addLabel(txt, pos, screen):
     screen.blit(info_text, (x,y))
     return
 
+def pause_simulation(game_state):
+    print('before: game_state.game_paused: ', game_state.game_paused)
+    game_state.game_paused = not game_state.game_paused
+    print('after: game_state.game_paused: ', game_state.game_paused)
+    return
+
+def advance_simulation(game_state):
+    return
+
 # Inputs: Superposition limits and optional file to load from
 def main(sp_up_limit=SUPERPOSITION_UP_LIMIT_VAL, sp_down_limit=SUPERPOSITION_DOWN_LIMIT_VAL, file_path=None, refresh_rate=REFRESH_DEFAULT):
     print(f'file_path: {file_path}')
+
+    game_state = GameState()
 
     ##### SETTING UP THE BACKGROUNDS
     # 2x2 window
@@ -301,8 +314,14 @@ def main(sp_up_limit=SUPERPOSITION_UP_LIMIT_VAL, sp_down_limit=SUPERPOSITION_DOW
     # declaration of some ThorPy elements ...
     #element = thorpy.Element("Element")
     slider = thorpy.SliderX(100, (12, 35), "My Slider")
-    button = thorpy.make_button("Quit", func=thorpy.functions.quit_func)
-    box = thorpy.Box(elements=[slider, button])
+    button_pause = thorpy.make_button("Pause", func=pause_simulation, params={"game_state": game_state})
+    button_next_step = thorpy.make_button("Next step", func=advance_simulation, params={"game_state": game_state})
+    button_quit = thorpy.make_button("Quit", func=thorpy.functions.quit_func)
+    box = thorpy.Box(elements=[slider,
+                               button_pause,
+                               button_next_step,
+                               button_quit,
+                               ])
     # we regroup all elements on a menu, even if we do not launch the menu
     menu = thorpy.Menu(box)
     # important : set the screen as surface for all elements
@@ -320,7 +339,7 @@ def main(sp_up_limit=SUPERPOSITION_UP_LIMIT_VAL, sp_down_limit=SUPERPOSITION_DOW
         newgrid_classical = Grid()
         newgrid_fully_quantum = Grid()
 
-        if pygame.time.get_ticks() - final > refresh_rate:
+        if pygame.time.get_ticks() - final > refresh_rate and not game_state.game_paused:
             background_quantum.fill((0, 0, 0))
             background_classical.fill((0, 0, 0))
 

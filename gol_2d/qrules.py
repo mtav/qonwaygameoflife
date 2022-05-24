@@ -1,14 +1,14 @@
 import numpy as np
-from qiskit import QuantumCircuit, ClassicalRegister, QuantumRegister
-from qiskit import Aer, execute
-#from qiskit.tools.qi.qi import partial_trace
-from qiskit.quantum_info import partial_trace
+# from qiskit import QuantumCircuit, ClassicalRegister, QuantumRegister
+# from qiskit import Aer, execute
+# from qiskit.tools.qi.qi import partial_trace
+# from qiskit.quantum_info import partial_trace
 
 # Returns how "lively" the cell should be depending
 # on its neighbourhood
 def liveliness(nhood):
     v = nhood
-    a = v[0][0][0] + v[0][1][0] + v[0][2][0] + v[1][0][0] + v[1][2][0] +             v[2][0][0] + v[2][1][0] + v[2][2][0]
+    a = v[0][0][0] + v[0][1][0] + v[0][2][0] + v[1][0][0] + v[1][2][0] + v[2][0][0] + v[2][1][0] + v[2][2][0]
     return a
 
 # Semi-quantum Game of Life

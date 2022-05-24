@@ -39,6 +39,13 @@ class GameState:
     game_paused = False
     step_forward = False
 
+    def __init__(self, sp_up_limit=SUPERPOSITION_UP_LIMIT_VAL, sp_down_limit=SUPERPOSITION_DOWN_LIMIT_VAL, file_path=None, refresh_rate=REFRESH_DEFAULT):
+        self.sp_up_limit = SUPERPOSITION_UP_LIMIT_VAL
+        self.sp_down_limit = SUPERPOSITION_DOWN_LIMIT_VAL
+        self.file_path = None
+        self.refresh_rate = REFRESH_DEFAULT
+        return
+
     def pause_simulation(self):
         print('before: self.game_paused: ', self.game_paused)
         self.game_paused = not self.game_paused
@@ -51,6 +58,246 @@ class GameState:
 
     def clear_grids(self):
         return
+
+    def load(self):
+        return
+
+    def run(self):
+        '''
+        Inputs: Superposition limits and optional file to load from
+        '''
+        print(f'file_path: {self.file_path}')
+
+        # game_state = GameState()
+
+        ##### SETTING UP THE BACKGROUNDS
+        # 2x2 window
+        res = (2 * WIN_WIDTH + WIN_INTERSPACE, 2 * WIN_HEIGHT + WIN_INTERSPACE)
+        screen = pygame.display.set_mode(res)
+        # initial fill, which helps locate used/unused surfaces
+        screen.fill((40,40,40))
+
+        background_Final = pygame.Surface(screen.get_size())
+
+        # Classical GOL Setup
+        rect_classical = pygame.Rect(0, 0, WIN_WIDTH, WIN_HEIGHT)
+        background_classical = background_Final.subsurface(rect_classical)
+        background_classical = background_classical.convert()
+        background_classical.fill((0, 0, 0))
+
+        rect_interspace = pygame.Rect(WIN_WIDTH + WIN_INTERSPACE, 0,
+                                      WIN_INTERSPACE, WIN_HEIGHT)
+        interspace = background_Final.subsurface(rect_interspace)
+        interspace = interspace.convert()
+        interspace.fill((0, 0, 0))
+
+        for x in range(0, WIN_INTERSPACE // PIXEL_SIZE):
+            for y in range(Y_LIMIT):
+                drawBlankSpace(interspace, x, y)
+
+        # Quantum GOL Setup
+        rect_quantum = pygame.Rect(WIN_WIDTH + WIN_INTERSPACE, 0, WIN_WIDTH,
+                                   WIN_HEIGHT)
+        background_quantum = background_Final.subsurface(rect_quantum)
+        background_quantum = background_quantum.convert()
+        background_quantum.fill((0, 0, 0))
+
+        rect_interspace_horizontal = pygame.Rect(0, WIN_HEIGHT,
+                                                 2 * WIN_WIDTH + WIN_INTERSPACE,
+                                                 WIN_INTERSPACE)
+        interspace_horizontal = background_Final.subsurface(
+            rect_interspace_horizontal)
+        interspace_horizontal = interspace_horizontal.convert()
+        interspace_horizontal.fill((0, 0, 0))
+
+        for x in range(0, (2 * WIN_WIDTH + WIN_INTERSPACE) // PIXEL_SIZE):
+            for y in range(0, WIN_INTERSPACE // PIXEL_SIZE):
+                drawBlankSpace(interspace_horizontal, x, y)
+
+        # Fully Quantum GOL Setup
+        # rect_fully_quantum = pygame.Rect(0, 0, WIN_WIDTH, WIN_HEIGHT)
+        background_fully_quantum = None
+        # background_fully_quantum = background_Final.subsurface(rect_quantum)
+        # background_fully_quantum = background_fully_quantum.convert()
+        # background_fully_quantum.fill((0, 0, 0))
+
+        #####
+        clock = pygame.time.Clock()
+
+        isActive = True
+        actionDown = False
+
+        final = pygame.time.get_ticks()
+        grid_quantum = Grid()
+        grid_classical = Grid()
+        # grid_fully_quantum = Grid()
+        grid_fully_quantum = None
+        debug = debugText(screen, clock)
+
+        #Create the orginal grid pattern randomly
+        if self.file_path is None:
+            init_grid_random(self.sp_up_limit, self.sp_down_limit, grid_quantum,
+                             background_quantum, grid_classical,
+                             background_classical, grid_fully_quantum,
+                             background_fully_quantum)
+        else:
+            init_grid_file(self.file_path, grid_quantum, background_quantum,
+                           grid_classical, background_classical,
+                           grid_fully_quantum, background_fully_quantum)
+
+        screen.blit(background_classical, (0, 0))
+        screen.blit(interspace, (WIN_WIDTH, 0))
+        screen.blit(background_quantum, (WIN_WIDTH + WIN_INTERSPACE, 0))
+        screen.blit(interspace_horizontal, (0, WIN_HEIGHT))
+        # screen.blit(background_quantum, (WIN_WIDTH / 2 + WIN_INTERSPACE / 2, WIN_HEIGHT + WIN_INTERSPACE)) # this is actually the fully quantum area
+
+        # add labels
+        addLabel('Classical', (WIN_WIDTH / 2, WIN_HEIGHT + WIN_INTERSPACE/2), screen)
+        addLabel('Quantum', (WIN_WIDTH + WIN_INTERSPACE + WIN_WIDTH / 2, WIN_HEIGHT + WIN_INTERSPACE/2), screen)
+
+        pygame.display.flip()
+
+        # ThorPy GUI
+        # declaration of some ThorPy elements ...
+        #element = thorpy.Element("Element")
+        slider = thorpy.SliderX(1000, (0, 1000), "Refresh rate (ms):", initial_value=REFRESH_DEFAULT)
+        slider_sp_down_limit = thorpy.SliderX(100, (0, 1), "Superposition DOWN limit:", initial_value=SUPERPOSITION_DOWN_LIMIT_VAL)
+        slider_sp_up_limit = thorpy.SliderX(100, (0, 1), "Superposition UP limit:", initial_value=SUPERPOSITION_UP_LIMIT_VAL)
+        # button_pause = thorpy.make_button("Pause", func=pause_simulation, params={"game_state": game_state})
+        button_pause = thorpy.make_button("Pause", func=self.pause_simulation)
+        button_next_step = thorpy.make_button("Next step", func=self.advance_simulation)
+        button_cleargrids = thorpy.make_button("Clear grids", func=self.clear_grids)
+        button_quit = thorpy.make_button("Quit", func=thorpy.functions.quit_func)
+        box = thorpy.Box(elements=[slider,
+                                   slider_sp_down_limit,
+                                   slider_sp_up_limit,
+                                   button_pause,
+                                   button_next_step,
+                                   button_cleargrids,
+                                   button_quit,
+                                   ], size=(screen.get_size()[0],WIN_HEIGHT))
+        # we regroup all elements on a menu, even if we do not launch the menu
+        menu = thorpy.Menu(box)
+        # important : set the screen as surface for all elements
+        for element in menu.get_population():
+            element.surface = screen
+        # use the elements normally...
+        box.set_topleft((0, WIN_HEIGHT + WIN_INTERSPACE))
+        box.blit()
+        box.update()
+
+        # game loop start
+        while isActive:
+            clock.tick(TARGET_FPS)
+            newgrid_quantum = Grid()
+            newgrid_classical = Grid()
+            # newgrid_fully_quantum = None #Grid()
+
+            refresh_rate = slider.get_value()
+            self.sp_up_limit = slider_sp_up_limit.get_value()
+            self.sp_down_limit = slider_sp_down_limit.get_value()
+            if (pygame.time.get_ticks() - final > refresh_rate and not self.game_paused) or self.step_forward:
+                self.step_forward = False
+                background_quantum.fill((0, 0, 0))
+                background_classical.fill((0, 0, 0))
+
+                for x in range(0, X_LIMIT):
+                    for y in range(0, Y_LIMIT):
+                        subgrid = grid_quantum.getNeighboursAround(x, y)
+                        newgrid_quantum.setCell(x, y, SQGOL(subgrid))
+                        drawSquare(background_quantum, x, y,
+                                   newgrid_quantum.getCell(x, y))
+                        #Classic game of life
+                        if (grid_classical.getCell(x, y) == ALIVE).all():
+                            count = grid_classical.countNeighbours(x, y)
+                            if count < 2:
+                                newgrid_classical.setCell(x, y, DEAD)
+
+                            elif count <= 3:
+                                newgrid_classical.setCell(x, y, ALIVE)
+                                drawSquareClassic(background_classical, x, y)
+
+                            elif count >= 4:
+                                newgrid_classical.setCell(x, y, DEAD)
+                        else:
+                            if grid_classical.countNeighbours(x, y) == 3:
+                                newgrid_classical.setCell(x, y, ALIVE)
+                                drawSquareClassic(background_classical, x, y)
+
+                        # subgrid_fully_quantum = grid_fully_quantum.getNeighboursAround(x, y)
+                        # newgrid_fully_quantum.setCell(x, y, DSQGOL(subgrid_fully_quantum)) # disabled, as it causes crashes with qiskit 0.36.1
+                        # drawSquare(background_fully_quantum, x, y,
+                        #            newgrid_fully_quantum.getCell(x, y))
+
+                final = pygame.time.get_ticks()
+
+            else:
+                newgrid_quantum = grid_quantum
+                newgrid_classical = grid_classical
+                # newgrid_fully_quantum = grid_fully_quantum
+
+            debug.update()
+
+            # get mouse position
+            x = pygame.mouse.get_pos()[0] // PIXEL_SIZE
+            y = pygame.mouse.get_pos()[1] // PIXEL_SIZE
+
+            actionDown = False
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    isActive = False
+
+                elif event.type == pygame.MOUSEBUTTONDOWN and 0 <= x < X_LIMIT and 0 <= y < Y_LIMIT:
+                    actionDown = True
+
+                    while actionDown:
+                        x = pygame.mouse.get_pos()[0] // PIXEL_SIZE
+                        y = pygame.mouse.get_pos()[1] // PIXEL_SIZE
+
+                        if 0 <= x < X_LIMIT and 0 <= y < Y_LIMIT:
+                            if (newgrid_classical.getCell(x, y) == DEAD).all():
+                                newgrid_classical.setCell(x, y, ALIVE)
+                                newgrid_quantum.setCell(x, y, random_cell(self.sp_up_limit, self.sp_down_limit))
+                                # newgrid_fully_quantum.setCell(x, y, random_cell(sp_up_limit, sp_down_limit))
+
+                                drawSquareClassic(background_classical, x, y)
+                                drawSquare(background_quantum, x, y, newgrid_quantum.getCell(x, y))
+                                # drawSquare for fully quantum version left
+                            else:
+                                newgrid_classical.setCell(x, y, DEAD)
+                                newgrid_quantum.setCell(x, y, random_cell(self.sp_up_limit, self.sp_down_limit))
+                                # newgrid_fully_quantum.setCell(x, y, random_cell(sp_up_limit, sp_down_limit))
+
+                                drawSquareClassic(background_classical, x, y, DEAD)
+                                drawSquare(background_quantum, x, y, newgrid_quantum.getCell(x, y))
+                                # drawSquare for fully quantum version left
+
+                        for event in pygame.event.get():
+                            if event.type == pygame.MOUSEBUTTONUP:
+                                actionDown = False
+
+                        screen.blit(background_classical, (0, 0))
+                        screen.blit(background_quantum, (WIN_WIDTH + 100, 0))
+                        pygame.display.flip()
+                menu.react(event)  # the menu automatically integrate your elements
+
+            #Draws the new grid
+            grid_quantum = newgrid_quantum
+            grid_classical = newgrid_classical
+            # grid_fully_quantum = newgrid_fully_quantum
+
+            #Updates screen
+            screen.blit(background_classical, (0, 0))
+            # screen.blit(interspace, (WIN_WIDTH, 0))
+            screen.blit(background_quantum, (WIN_WIDTH + WIN_INTERSPACE, 0))
+            # screen.blit(interspace_horizontal, (0, WIN_HEIGHT))
+            # screen.blit(
+            #     background_fully_quantum,
+            #     (WIN_WIDTH / 2 + WIN_INTERSPACE / 2, WIN_HEIGHT + WIN_INTERSPACE))
+            debug.update()
+            debug.printText()
+            pygame.display.flip()
+
 
 class Grid():
     def __init__(self, *args, **kwargs):
@@ -205,8 +452,11 @@ def drawBlankSpace(background, x, y):
                      (x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE))
 
 
-def drawSquareClassic(background, x, y):
-    colour = 255, 255, 255
+def drawSquareClassic(background, x, y, state=ALIVE):
+    if (state==ALIVE).all():
+        colour = 255, 255, 255
+    else:
+        colour = 0, 0, 0
     pygame.draw.rect(background, colour,
                      (x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE),
                      LINE_WIDTH)
@@ -221,228 +471,6 @@ def addLabel(txt, pos, screen):
     y = pos[1] - text_height / 2
     screen.blit(info_text, (x,y))
     return
-
-# Inputs: Superposition limits and optional file to load from
-def main(sp_up_limit=SUPERPOSITION_UP_LIMIT_VAL, sp_down_limit=SUPERPOSITION_DOWN_LIMIT_VAL, file_path=None, refresh_rate=REFRESH_DEFAULT):
-    print(f'file_path: {file_path}')
-
-    game_state = GameState()
-
-    ##### SETTING UP THE BACKGROUNDS
-    # 2x2 window
-    res = (2 * WIN_WIDTH + WIN_INTERSPACE, 2 * WIN_HEIGHT + WIN_INTERSPACE)
-    screen = pygame.display.set_mode(res)
-    # initial fill, which helps locate used/unused surfaces
-    screen.fill((40,40,40))
-
-    background_Final = pygame.Surface(screen.get_size())
-
-    # Classical GOL Setup
-    rect_classical = pygame.Rect(0, 0, WIN_WIDTH, WIN_HEIGHT)
-    background_classical = background_Final.subsurface(rect_classical)
-    background_classical = background_classical.convert()
-    background_classical.fill((0, 0, 0))
-
-    rect_interspace = pygame.Rect(WIN_WIDTH + WIN_INTERSPACE, 0,
-                                  WIN_INTERSPACE, WIN_HEIGHT)
-    interspace = background_Final.subsurface(rect_interspace)
-    interspace = interspace.convert()
-    interspace.fill((0, 0, 0))
-
-    for x in range(0, WIN_INTERSPACE // PIXEL_SIZE):
-        for y in range(Y_LIMIT):
-            drawBlankSpace(interspace, x, y)
-
-    # Quantum GOL Setup
-    rect_quantum = pygame.Rect(WIN_WIDTH + WIN_INTERSPACE, 0, WIN_WIDTH,
-                               WIN_HEIGHT)
-    background_quantum = background_Final.subsurface(rect_quantum)
-    background_quantum = background_quantum.convert()
-    background_quantum.fill((0, 0, 0))
-
-    rect_interspace_horizontal = pygame.Rect(0, WIN_HEIGHT,
-                                             2 * WIN_WIDTH + WIN_INTERSPACE,
-                                             WIN_INTERSPACE)
-    interspace_horizontal = background_Final.subsurface(
-        rect_interspace_horizontal)
-    interspace_horizontal = interspace_horizontal.convert()
-    interspace_horizontal.fill((0, 0, 0))
-
-    for x in range(0, (2 * WIN_WIDTH + WIN_INTERSPACE) // PIXEL_SIZE):
-        for y in range(0, WIN_INTERSPACE // PIXEL_SIZE):
-            drawBlankSpace(interspace_horizontal, x, y)
-
-    # Fully Quantum GOL Setup
-    # rect_fully_quantum = pygame.Rect(0, 0, WIN_WIDTH, WIN_HEIGHT)
-    background_fully_quantum = None
-    # background_fully_quantum = background_Final.subsurface(rect_quantum)
-    # background_fully_quantum = background_fully_quantum.convert()
-    # background_fully_quantum.fill((0, 0, 0))
-
-    #####
-    clock = pygame.time.Clock()
-
-    isActive = True
-    actionDown = False
-
-    final = pygame.time.get_ticks()
-    grid_quantum = Grid()
-    grid_classical = Grid()
-    # grid_fully_quantum = Grid()
-    grid_fully_quantum = None
-    debug = debugText(screen, clock)
-
-    #Create the orginal grid pattern randomly
-    if file_path is None:
-        init_grid_random(sp_up_limit, sp_down_limit, grid_quantum,
-                         background_quantum, grid_classical,
-                         background_classical, grid_fully_quantum,
-                         background_fully_quantum)
-    else:
-        init_grid_file(file_path, grid_quantum, background_quantum,
-                       grid_classical, background_classical,
-                       grid_fully_quantum, background_fully_quantum)
-
-    screen.blit(background_classical, (0, 0))
-    screen.blit(interspace, (WIN_WIDTH, 0))
-    screen.blit(background_quantum, (WIN_WIDTH + WIN_INTERSPACE, 0))
-    screen.blit(interspace_horizontal, (0, WIN_HEIGHT))
-    # screen.blit(background_quantum, (WIN_WIDTH / 2 + WIN_INTERSPACE / 2, WIN_HEIGHT + WIN_INTERSPACE)) # this is actually the fully quantum area
-
-    # add labels
-    addLabel('Classical', (WIN_WIDTH / 2, WIN_HEIGHT + WIN_INTERSPACE/2), screen)
-    addLabel('Quantum', (WIN_WIDTH + WIN_INTERSPACE + WIN_WIDTH / 2, WIN_HEIGHT + WIN_INTERSPACE/2), screen)
-
-    pygame.display.flip()
-
-    # ThorPy GUI
-    # declaration of some ThorPy elements ...
-    #element = thorpy.Element("Element")
-    slider = thorpy.SliderX(1000, (0, 1000), "Refresh rate (ms):", initial_value=REFRESH_DEFAULT)
-    # button_pause = thorpy.make_button("Pause", func=pause_simulation, params={"game_state": game_state})
-    button_pause = thorpy.make_button("Pause", func=game_state.pause_simulation)
-    button_next_step = thorpy.make_button("Next step", func=game_state.advance_simulation)
-    button_cleargrids = thorpy.make_button("Clear grids", func=game_state.clear_grids)
-    button_quit = thorpy.make_button("Quit", func=thorpy.functions.quit_func)
-    box = thorpy.Box(elements=[slider,
-                               button_pause,
-                               button_next_step,
-                               button_cleargrids,
-                               button_quit,
-                               ], size=(screen.get_size()[0],WIN_HEIGHT))
-    # we regroup all elements on a menu, even if we do not launch the menu
-    menu = thorpy.Menu(box)
-    # important : set the screen as surface for all elements
-    for element in menu.get_population():
-        element.surface = screen
-    # use the elements normally...
-    box.set_topleft((0, WIN_HEIGHT + WIN_INTERSPACE))
-    box.blit()
-    box.update()
-
-    # game loop start
-    while isActive:
-        clock.tick(TARGET_FPS)
-        newgrid_quantum = Grid()
-        newgrid_classical = Grid()
-        newgrid_fully_quantum = Grid()
-
-        refresh_rate = slider.get_value()
-        if (pygame.time.get_ticks() - final > refresh_rate and not game_state.game_paused) or game_state.step_forward:
-            game_state.step_forward = False
-            background_quantum.fill((0, 0, 0))
-            background_classical.fill((0, 0, 0))
-
-            for x in range(0, X_LIMIT):
-                for y in range(0, Y_LIMIT):
-                    subgrid = grid_quantum.getNeighboursAround(x, y)
-                    newgrid_quantum.setCell(x, y, SQGOL(subgrid))
-                    drawSquare(background_quantum, x, y,
-                               newgrid_quantum.getCell(x, y))
-                    #Classic game of life
-                    if (grid_classical.getCell(x, y) == ALIVE).all():
-                        count = grid_classical.countNeighbours(x, y)
-                        if count < 2:
-                            newgrid_classical.setCell(x, y, DEAD)
-
-                        elif count <= 3:
-                            newgrid_classical.setCell(x, y, ALIVE)
-                            drawSquareClassic(background_classical, x, y)
-
-                        elif count >= 4:
-                            newgrid_classical.setCell(x, y, DEAD)
-                    else:
-                        if grid_classical.countNeighbours(x, y) == 3:
-                            newgrid_classical.setCell(x, y, ALIVE)
-                            drawSquareClassic(background_classical, x, y)
-
-                    # subgrid_fully_quantum = grid_fully_quantum.getNeighboursAround(x, y)
-                    # newgrid_fully_quantum.setCell(x, y, DSQGOL(subgrid_fully_quantum)) # disabled, as it causes crashes with qiskit 0.36.1
-                    # drawSquare(background_fully_quantum, x, y,
-                    #            newgrid_fully_quantum.getCell(x, y))
-
-            final = pygame.time.get_ticks()
-
-        else:
-            newgrid_quantum = grid_quantum
-            newgrid_classical = grid_classical
-            newgrid_fully_quantum = grid_fully_quantum
-
-        debug.update()
-
-        # get mouse position
-        x = pygame.mouse.get_pos()[0] // PIXEL_SIZE
-        y = pygame.mouse.get_pos()[1] // PIXEL_SIZE
-
-        actionDown = False
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                isActive = False
-
-            elif event.type == pygame.MOUSEBUTTONDOWN and 0 <= x < X_LIMIT and 0 <= y < Y_LIMIT:
-                actionDown = True
-
-                while actionDown:
-                    x = pygame.mouse.get_pos()[0] // PIXEL_SIZE
-                    y = pygame.mouse.get_pos()[1] // PIXEL_SIZE
-
-                    if 0 <= x < X_LIMIT and 0 <= y < Y_LIMIT:
-                        newgrid_classical.setCell(x, y, ALIVE)
-                        newgrid_quantum.setCell(
-                            x, y, random_cell(sp_up_limit, sp_down_limit))
-                        newgrid_fully_quantum.setCell(
-                            x, y, random_cell(sp_up_limit, sp_down_limit))
-
-                        drawSquareClassic(background_classical, x, y)
-                        drawSquare(background_quantum, x, y,
-                                   newgrid_quantum.getCell(x, y))
-                        # drawSquare for fully quantum version left
-
-                    for event in pygame.event.get():
-                        if event.type == pygame.MOUSEBUTTONUP:
-                            actionDown = False
-
-                    screen.blit(background_classical, (0, 0))
-                    screen.blit(background_quantum, (WIN_WIDTH + 100, 0))
-                    pygame.display.flip()
-            menu.react(event)  # the menu automatically integrate your elements
-
-        #Draws the new grid
-        grid_quantum = newgrid_quantum
-        grid_classical = newgrid_classical
-        grid_fully_quantum = newgrid_fully_quantum
-
-        #Updates screen
-        screen.blit(background_classical, (0, 0))
-        # screen.blit(interspace, (WIN_WIDTH, 0))
-        screen.blit(background_quantum, (WIN_WIDTH + WIN_INTERSPACE, 0))
-        # screen.blit(interspace_horizontal, (0, WIN_HEIGHT))
-        # screen.blit(
-        #     background_fully_quantum,
-        #     (WIN_WIDTH / 2 + WIN_INTERSPACE / 2, WIN_HEIGHT + WIN_INTERSPACE))
-        debug.update()
-        debug.printText()
-        pygame.display.flip()
 
 def startgui(args):
     pygame.init()
@@ -555,6 +583,10 @@ def startgui(args):
         if game_start:
             main(args[SUPERPOSITION_UP_LIMIT_ARG],
                  args[SUPERPOSITION_DOWN_LIMIT_ARG], args[FILE_ARG], args['refresh_rate'])
+
+def main(sp_up_limit=SUPERPOSITION_UP_LIMIT_VAL, sp_down_limit=SUPERPOSITION_DOWN_LIMIT_VAL, file_path=None, refresh_rate=REFRESH_DEFAULT):
+    game_state = GameState(sp_up_limit, sp_down_limit, file_path, refresh_rate)
+    game_state.run()
 
 # Code starts here.
 # Takes in optional arguments and calls main()

@@ -47,6 +47,8 @@ class GameState:
         self.sp_down_limit = sp_down_limit
         self.file_path = file_path
         self.refresh_rate = refresh_rate
+        self.add_mode_classical = 1 # 0: kill cells, 1: create cell, 2: toggle cell
+        self.add_mode_quantum = 3 # 0: kill cells, 1: create cell, 2: toggle cell, 3: random using sp_down_limit and sp_up_limit
         return
 
     def pause_simulation(self):
@@ -162,17 +164,30 @@ class GameState:
         self.button_start = thorpy.make_button("Start", func=self.run)
         self.button_reset = thorpy.make_button("Reset", func=self.setup)
         self.button_pause = thorpy.make_button("Pause", func=self.pause_simulation)
+        self.button_toggle_pause = thorpy.Togglable("Pause")
+
         self.button_next_step = thorpy.make_button("Next step", func=self.advance_simulation)
         self.button_cleargrids = thorpy.make_button("Clear grids", func=self.clear_grids)
         self.button_quit = thorpy.make_button("Quit", func=thorpy.functions.quit_func)
+        self.dropdownlist_add_mode_classical = thorpy.DropDownListLauncher(const_text="Choose:",
+                                                   var_text="",
+                                                   titles=[str(i) * i for i in range(1, 9)])
+        self.dropdownlist_add_mode_classical.scale_to_title()
+        self.dropdownlist_add_mode_classical.max_chars = 12  # limit size of drop down list
+
+        self.dropdownlist_add_mode_quantum = thorpy.DropDownListLauncher(const_text="Choose:",
+                                                   var_text="",
+                                                   titles=[str(i) * i for i in range(1, 9)])
         self.box = thorpy.Box(elements=[
                                         # self.button_start,
-                                        self.button_pause,
+                                        # self.button_pause,
+                                        self.button_toggle_pause,
                                         self.button_next_step,
                                         # self.button_cleargrids,
                                         self.slider,
                                         self.slider_sp_down_limit,
                                         self.slider_sp_up_limit,
+                                        # self.dropdownlist_add_mode_classical,
                                         self.button_quit,
                                         ], size=(self.screen.get_size()[0],WIN_HEIGHT))
         # we regroup all elements on a menu, even if we do not launch the menu
@@ -192,6 +207,7 @@ class GameState:
     def run(self):
         # game loop start
         while self.isActive:
+
             self.clock.tick(TARGET_FPS)
             newgrid_quantum = Grid()
             newgrid_classical = Grid()
@@ -200,6 +216,7 @@ class GameState:
             self.refresh_rate = self.slider.get_value()
             self.sp_up_limit = self.slider_sp_up_limit.get_value()
             self.sp_down_limit = self.slider_sp_down_limit.get_value()
+            self.game_paused = self.button_toggle_pause.toggled
             if (pygame.time.get_ticks() - self.final > self.refresh_rate and not self.game_paused) or self.step_forward:
                 self.step_forward = False
                 self.background_quantum.fill((0, 0, 0))

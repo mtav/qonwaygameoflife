@@ -49,6 +49,9 @@ class GameState:
         self.step_forward = True
         return
 
+    def clear_grids(self):
+        return
+
 class Grid():
     def __init__(self, *args, **kwargs):
         self.grid = [[DEAD for i in range(Y_LIMIT)] for i in range(X_LIMIT)]
@@ -315,16 +318,18 @@ def main(sp_up_limit=SUPERPOSITION_UP_LIMIT_VAL, sp_down_limit=SUPERPOSITION_DOW
     # ThorPy GUI
     # declaration of some ThorPy elements ...
     #element = thorpy.Element("Element")
-    slider = thorpy.SliderX(100, (12, 35), "My Slider")
+    slider = thorpy.SliderX(1000, (0, 1000), "Refresh rate (ms):", initial_value=REFRESH_DEFAULT)
     # button_pause = thorpy.make_button("Pause", func=pause_simulation, params={"game_state": game_state})
     button_pause = thorpy.make_button("Pause", func=game_state.pause_simulation)
     button_next_step = thorpy.make_button("Next step", func=game_state.advance_simulation)
+    button_cleargrids = thorpy.make_button("Clear grids", func=game_state.clear_grids)
     button_quit = thorpy.make_button("Quit", func=thorpy.functions.quit_func)
     box = thorpy.Box(elements=[slider,
                                button_pause,
                                button_next_step,
+                               button_cleargrids,
                                button_quit,
-                               ])
+                               ], size=(screen.get_size()[0],WIN_HEIGHT))
     # we regroup all elements on a menu, even if we do not launch the menu
     menu = thorpy.Menu(box)
     # important : set the screen as surface for all elements
@@ -342,6 +347,7 @@ def main(sp_up_limit=SUPERPOSITION_UP_LIMIT_VAL, sp_down_limit=SUPERPOSITION_DOW
         newgrid_classical = Grid()
         newgrid_fully_quantum = Grid()
 
+        refresh_rate = slider.get_value()
         if (pygame.time.get_ticks() - final > refresh_rate and not game_state.game_paused) or game_state.step_forward:
             game_state.step_forward = False
             background_quantum.fill((0, 0, 0))

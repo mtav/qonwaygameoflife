@@ -8,5 +8,6 @@ authors = ["Your Name <you@example.com>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 numpy = "^1.21.2"
-#pygame = "^2.0.1"
-qiskit = "^0.36.1"
+pygame = "^2.0.1"
+#qiskit = "^0.36.1"
+thorpy = "^1.8.1"

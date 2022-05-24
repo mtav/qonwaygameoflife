@@ -159,18 +159,22 @@ class GameState:
         self.slider_sp_down_limit = thorpy.SliderX(100, (0, 1), "Superposition DOWN limit:", initial_value=SUPERPOSITION_DOWN_LIMIT_VAL)
         self.slider_sp_up_limit = thorpy.SliderX(100, (0, 1), "Superposition UP limit:", initial_value=SUPERPOSITION_UP_LIMIT_VAL)
         # button_pause = thorpy.make_button("Pause", func=pause_simulation, params={"game_state": game_state})
+        self.button_start = thorpy.make_button("Start", func=self.run)
+        self.button_reset = thorpy.make_button("Reset", func=self.setup)
         self.button_pause = thorpy.make_button("Pause", func=self.pause_simulation)
         self.button_next_step = thorpy.make_button("Next step", func=self.advance_simulation)
         self.button_cleargrids = thorpy.make_button("Clear grids", func=self.clear_grids)
         self.button_quit = thorpy.make_button("Quit", func=thorpy.functions.quit_func)
-        self.box = thorpy.Box(elements=[self.slider,
-                                   self.slider_sp_down_limit,
-                                   self.slider_sp_up_limit,
-                                   self.button_pause,
-                                   self.button_next_step,
-                                   self.button_cleargrids,
-                                   self.button_quit,
-                                   ], size=(self.screen.get_size()[0],WIN_HEIGHT))
+        self.box = thorpy.Box(elements=[
+                                        # self.button_start,
+                                        self.button_pause,
+                                        self.button_next_step,
+                                        # self.button_cleargrids,
+                                        self.slider,
+                                        self.slider_sp_down_limit,
+                                        self.slider_sp_up_limit,
+                                        self.button_quit,
+                                        ], size=(self.screen.get_size()[0],WIN_HEIGHT))
         # we regroup all elements on a menu, even if we do not launch the menu
         self.menu = thorpy.Menu(self.box)
         # important : set the screen as surface for all elements

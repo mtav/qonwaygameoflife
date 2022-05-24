@@ -1,8 +1,4 @@
 import numpy as np
-# from qiskit import QuantumCircuit, ClassicalRegister, QuantumRegister
-# from qiskit import Aer, execute
-# from qiskit.tools.qi.qi import partial_trace
-# from qiskit.quantum_info import partial_trace
 
 # Returns how "lively" the cell should be depending
 # on its neighbourhood

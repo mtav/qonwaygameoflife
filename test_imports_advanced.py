@@ -77,6 +77,6 @@ def test_qiskit():
 if __name__=="__main__":
     # call the main function
     test_numpy()
-    test_qiskit()
+    #test_qiskit()
     test_pygame()
     #main()

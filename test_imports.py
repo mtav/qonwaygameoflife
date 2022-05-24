@@ -1,4 +1,4 @@
 import numpy
 # import pygame
-import qiskit
+#import qiskit
 print('OK')

@@ -37,6 +37,17 @@ TARGET_FPS = 60
 
 class GameState:
     game_paused = False
+    step_forward = False
+
+    def pause_simulation(self):
+        print('before: self.game_paused: ', self.game_paused)
+        self.game_paused = not self.game_paused
+        print('after: self.game_paused: ', self.game_paused)
+        return
+
+    def advance_simulation(self):
+        self.step_forward = True
+        return
 
 class Grid():
     def __init__(self, *args, **kwargs):
@@ -208,15 +219,6 @@ def addLabel(txt, pos, screen):
     screen.blit(info_text, (x,y))
     return
 
-def pause_simulation(game_state):
-    print('before: game_state.game_paused: ', game_state.game_paused)
-    game_state.game_paused = not game_state.game_paused
-    print('after: game_state.game_paused: ', game_state.game_paused)
-    return
-
-def advance_simulation(game_state):
-    return
-
 # Inputs: Superposition limits and optional file to load from
 def main(sp_up_limit=SUPERPOSITION_UP_LIMIT_VAL, sp_down_limit=SUPERPOSITION_DOWN_LIMIT_VAL, file_path=None, refresh_rate=REFRESH_DEFAULT):
     print(f'file_path: {file_path}')
@@ -314,8 +316,9 @@ def main(sp_up_limit=SUPERPOSITION_UP_LIMIT_VAL, sp_down_limit=SUPERPOSITION_DOW
     # declaration of some ThorPy elements ...
     #element = thorpy.Element("Element")
     slider = thorpy.SliderX(100, (12, 35), "My Slider")
-    button_pause = thorpy.make_button("Pause", func=pause_simulation, params={"game_state": game_state})
-    button_next_step = thorpy.make_button("Next step", func=advance_simulation, params={"game_state": game_state})
+    # button_pause = thorpy.make_button("Pause", func=pause_simulation, params={"game_state": game_state})
+    button_pause = thorpy.make_button("Pause", func=game_state.pause_simulation)
+    button_next_step = thorpy.make_button("Next step", func=game_state.advance_simulation)
     button_quit = thorpy.make_button("Quit", func=thorpy.functions.quit_func)
     box = thorpy.Box(elements=[slider,
                                button_pause,
@@ -339,7 +342,8 @@ def main(sp_up_limit=SUPERPOSITION_UP_LIMIT_VAL, sp_down_limit=SUPERPOSITION_DOW
         newgrid_classical = Grid()
         newgrid_fully_quantum = Grid()
 
-        if pygame.time.get_ticks() - final > refresh_rate and not game_state.game_paused:
+        if (pygame.time.get_ticks() - final > refresh_rate and not game_state.game_paused) or game_state.step_forward:
+            game_state.step_forward = False
             background_quantum.fill((0, 0, 0))
             background_classical.fill((0, 0, 0))
 

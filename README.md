@@ -60,6 +60,18 @@ We also provide a few JSON seeds you can try in [gol_2d/seeds](gol_2d/seeds):
 (QiskitEnv) > python ./gol_2d/life.py --no-gui --sp_down 0.6 --sp_up 0.9 --json ./gol_2d/seeds/glider_quantum_chaos.json --refresh-rate=1000
 ```
 
+### What happens when I add new cells? What are the superposition limits?
+
+When you click on any cell in the classical space, its state will be toggled, i.e. if there is no cell (dead cell), a cell is created and if there is a cell (alive cell), it gets killed.
+
+At the same time, you create a new cell in the quantum space. But its alive or dead state will depend on the superposition limits.
+The process is as follows:
+
+When a new quantum cell is created:
+1. Pick a random value **p** between 0 and 1.
+1. If **p x p** > (UP limit), create a dead cell.
+1. If **p x p** < (DOWN limit), create a live cell.
+1. Else, create a cell that has a probability **p x p** of being dead and that is otherwise alive.
 
 ### Source
 

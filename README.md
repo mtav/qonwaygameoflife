@@ -73,7 +73,7 @@ When a new quantum cell is created:
 1. If **p x p** < (DOWN limit), create a live cell.
 1. Else, create a cell that has a probability **p x p** of being dead and that is otherwise alive.
 
-![Superposition limits explanation](images/superposition_limits_v3.png)
+![Superposition limits explanation](images/superposition_limits_v4.png)
 
 ### Source
 

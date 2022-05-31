@@ -20,7 +20,7 @@ In order to run this code, you have to clone this repo & prepare a python virtua
 
 ### Qonway's Game of Life
 
-![Qonway's Game of Life](https://raw.githubusercontent.com/qonwaygameoflife/qonwaygameoflife/master/images/life.jpeg)
+![Qonway's Game of Life](images/screenshot-quantum-game-of-life.png)
 
 These are three renditions of the quantum game of life - top left is the classical game of life, top right is the semi quantum version
 and the bottom is a fully quantum kernel rendition. The fully quantum kernel uses a quantum cloning machine to bring cells to life as an average of the neighbouring cells.
@@ -72,6 +72,8 @@ When a new quantum cell is created:
 1. If **p x p** > (UP limit), create a dead cell.
 1. If **p x p** < (DOWN limit), create a live cell.
 1. Else, create a cell that has a probability **p x p** of being dead and that is otherwise alive.
+
+![Superposition limits explanation](images/superposition_limits_v2.png)
 
 ### Source
 

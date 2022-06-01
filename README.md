@@ -6,7 +6,10 @@ This game is a quantum version of [Conway's Game of Life](https://en.wikipedia.o
 
 Instead of just being alive or dead, cells can be in a superposition of being alive and dead at the same time.
 
-For more details, please have a look at this [presentation](presentation/n_dimensional_quantum_game_of_life.pdf).
+For more details, please have a look at these presentations:
+
+* [Qiskit Hackathon Madrid 2019 presentation](presentation/n_dimensional_quantum_game_of_life.pdf).
+* [Quantum Games 2022 presentation](presentation/QG_Quantum_GOL_v2.pdf)
 
 The game can also be played online at: https://replit.com/@AayushKucheria/qonwaygameoflife-1
 

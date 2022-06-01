@@ -1,8 +1,20 @@
 # Quantum Games 2022 by Aalto University - Quantum Game of Life
 
+## What is it?
+
+This game is a quantum version of [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life).
+
+Instead of just being alive or dead, cells can be in a superposition of being alive and dead at the same time.
+
+For more details, please have a look at this [presentation](presentation/n_dimensional_quantum_game_of_life.pdf).
+
+The game can also be played online at: https://replit.com/@AayushKucheria/qonwaygameoflife-1
+
 ## What did we do?
 
-To apply quantum computing to [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life):
+This game was originally forked from https://github.com/qonwaygameoflife/qonwaygameoflife, which was made for the [Qiskit Hackathon Madrid 2019](https://madrid.qiskit.camp/).
+
+The game was updated here for the [Quantum Games Course 2022 by Aalto University](https://quantumgames.aalto.fi/), with a graphical user interface, as well as the ability to pause the game, advance it step by step, change the refresh rate and tweak the superposition limits used to place new quantum cells.
 
 ## Show me the code
 

@@ -10,6 +10,8 @@ For more details, please have a look at this [presentation](presentation/n_dimen
 
 The game can also be played online at: https://replit.com/@AayushKucheria/qonwaygameoflife-1
 
+A gameplay video is available here: https://www.youtube.com/watch?v=3d10NwTH8bc
+
 ## What did we do?
 
 This game was originally forked from https://github.com/qonwaygameoflife/qonwaygameoflife, which was made for the [Qiskit Hackathon Madrid 2019](https://madrid.qiskit.camp/).
